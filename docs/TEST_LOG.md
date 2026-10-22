@@ -32,3 +32,23 @@ Reloaded app after fix. Selected B and transfer, saved MXN 200. Both selectors r
 ## Synthetic persona improvement / regression
 
 A separate fresh-context synthetic persona reviewed five screenshots and flagged calibration as a stopping point. Added receipt-without-measurement path. Actual browser at 390px: user can confirm receipt without checking calibration, sees «No medido», no numerical discrepancy, and close remains disabled until review. Three additional tests pass (17 total), including unknown-volume export and review invalidation after replacing unknown volume with an estimate.
+
+## Redesign regression / final local build
+
+21 domain tests passed, zero failures. Added explicit coverage of complete reading-version snapshots, measured-to-unknown replacement, post-closure contributions and corrections, and agreed zero-allocation input. JavaScript syntax checked for app, core and service worker.
+
+Actual Chrome desktop walkthrough: original estimate 5,000 L corrected to 5,500 L; history retains both full observations. Human review then delivery closure; B adds 250 after an earlier 200 and now has 450, while other balances remain open. Final aggregate summary says delivery closed, contributions 450, balance 1,350 and explains that closure does not mean paid.
+
+After a deliberate reset of fictional data, confirmed an order and used the new top-of-form receipt-without-measurement button. Browser showed “No medido”, no numeric discrepancy, and a disabled close button until human review. Screenshot: evidence/redesign/08-unknown-volume.jpg.
+
+Responsive QA: browser viewport override did not resize the tested tab reliably. Instead used a temporary same-origin HTML iframe of 390 CSS pixels, loading the actual application. Its usable root width and scroll width both measured 375 pixels (15-pixel scrollbar), on overview and order pages. Navigation scrolls within its own region. Screenshot 07-mobile.jpg shows this test harness, not a mobile device. Harness removed before packaging.
+
+Same fictional persona inspected six ordered final screenshots and documented the before/change/after comparison in PERSONA_TEST.md. This remains a visual synthetic review, separate from the mechanical walkthrough.
+
+## Production regression / public version 3
+
+Native deployment succeeded for commit eba03e0e70af2b57e494bb275819290fbdfcf2f7. Public access policy applied with explicit user approval. Actual production URL loaded the new original illustration and navigation. Completed confirmed order, B transfer 200, calibrated 5,000 L estimate, correction to 5,500 L, human review and delivery closure. History showed both observation versions. Added and then annulled an A contribution after closure; original retained as annulled. Explicitly selected B and added 250 after closure: B total 450. Aggregate export showed 450 contributed / 1,350 outstanding and “Entrega cerrada”, without unit-specific figures or raw readings.
+
+The test initially added 250 to the visible default A after navigating back from another section; that was a test-operator selection mistake. Annulling that record and selecting B verified both actual correction paths; no product behavior was altered to hide the test mistake.
+
+Reset fictional data and confirmed another order in production. Receipt-without-measurement showed “No medido” and kept close disabled until review. Public screenshots 09-11 retain final layout, reading history and unknown-volume result. No real money, household data or supplier transaction was used.

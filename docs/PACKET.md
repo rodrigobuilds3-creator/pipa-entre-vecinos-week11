@@ -8,7 +8,7 @@ The resident coordinating one shared pipa delivery into a building's communal ci
 
 ## Success before module closes
 
-At a live URL, a reviewer can choose a fictional quote, review four apartment shares, confirm an order, log cash/transfer contributions, enter calibrated tank observations with concurrent withdrawal, review a volume discrepancy and close the order with a correction history. The shareable/printable summary excludes individual contribution histories and raw readings. All money calculations reconcile to the cent; no real payments occur. Data persists locally between reloads. No order, charge or access restriction is automatic.
+At a live URL, a reviewer can choose a fictional quote, review four apartment shares, confirm an order, log cash/transfer contributions, enter calibrated tank observations with concurrent withdrawal, review a volume discrepancy and close the delivery with a correction history. The shareable/printable summary excludes individual contribution histories and raw readings. All money calculations reconcile to the cent; no real payments occur. Data persists locally between reloads. No order, charge or access restriction is automatic.
 
 ## Image-generated mockup
 
@@ -31,7 +31,7 @@ flowchart TD
   H --> I[Resident reviews discrepancy and correction]
   F --> J[Review final bill]
   I --> J
-  J --> K[Human closes order]
+  J --> K[Human closes delivery; contributions remain open]
   K --> L[Preview aggregate summary]
   L -->|Explicit export| M[Copy or print without household payment detail]
 ```
@@ -90,7 +90,7 @@ No supplier directory, real supplier onboarding, public-contract audit, fund cus
 | Third layer | Quote comparison by MXN/1000 L, shared-cost allocation and order state machine | Fictional quotes, no real market or payments |
 | Storage | Versioned localStorage, schema validation, storage failure message; offline cache | Raw readings never leave browser through application APIs |
 | Export | User-previewed aggregate copy/print | Excludes contribution history, identifiers and raw sensing history |
-| Hosting | Static Sites, owner-private by default | Publication does not grant teacher access; GitHub account access checked separately |
+| Hosting | Static Sites, public demo authorized on 21 October 2026 | Public URL and public GitHub source checked separately; fictional data only |
 
 Volume: `capacity * (afterPercent - beforePercent) / 100 + withdrawalsLiters`; withdrawals during delivery must be added to the net storage change. This estimate relies on calibrated percentage-to-volume mapping. Night drops alone do not prove a leak. Custom cost splits must sum exactly to quote total; round equal shares using integer cents and distribute the remainder deterministically.
 
@@ -107,7 +107,7 @@ Volume: `capacity * (afterPercent - beforePercent) / 100 + withdrawalsLiters`; w
 
 - Money: MXN 1,800/4 = 450 each; odd-cent totals still reconcile; negatives, NaN, oversized or mismatched custom shares rejected.
 - Payments: cash/transfer only; overpayments rejected; fractional-cent input rejected; correction creates audit entry, never silently overwrites history.
-- State: draft -> confirmed -> delivery review -> closed; cannot close without reviewed delivery; no edits to closed order except explicit correction process/new order.
+- State: draft -> confirmed -> delivery review -> closed; cannot close without reviewed delivery; closing freezes delivery readings and allocation; contributions and audit-preserving payment corrections remain open.
 - Sensing: 10,000 L capacity, 20% -> 65%, 500 L withdrawals = 5,000 L estimated; reject unknown calibration, negative withdrawals and invalid percentages.
 - ML: deterministic synthetic data, temporal holdout, finite MAE and forecast; do not call a constant rule ML; screen says synthetic training.
 - Persistence: validate saved state; handle malformed JSON, unknown version and quota denial; reload preserves valid demo state.
@@ -128,3 +128,7 @@ Every session closes with DECISIONS.md, next step, commit and push where access 
 ## Addendum after synthetic persona review
 
 A coordinator who does not know calibrated volume can register receipt without measurement. `liters: null` remains unknown, no numerical discrepancy is invented, and human review is still required. Replacing that receipt with a calibrated estimate clears review. This usability change follows the packet's calibration and inclusion constraints.
+
+## Redesign and correctness addendum / 21 October 2026
+
+Startup identity follows the user's visual references with original generated art, blue/yellow palette, top navigation and a responsive app. Full-cost categories and comparison formulas are now provided in `docs/PILOT_COST_WORKSHEET.md`; actual pilot costs remain to be collected. Corrected readings are retained in a local version history; closing a delivery freezes its readings but does not prevent later contributions or payment corrections. The full raw visible development exchange is exported separately from local chat records with hidden reasoning, instructions and credentials excluded, rather than reconstructed as a summary.

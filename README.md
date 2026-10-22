@@ -20,7 +20,7 @@ No dependencies or build step. Sources in dist/; packet, benchmark links, implem
 
 ## Publication
 
-Owner-private Sites publication authorized by Rodrigo in chat. Source repo is the native Sites repository, not GitHub. An initial sandboxed auth check was misleading; network-enabled verification confirmed the existing GitHub login. Rodrigo authorized a public repository at https://github.com/rodrigobuilds3-creator/pipa-entre-vecinos-week11. Hosting metadata is retained privately and excluded from this public source export.
+Public demonstration authorized by Rodrigo for professor review on 21 October 2026: https://pipa-entre-vecinos-week11.j6x567qt8g.chatgpt.site. The public source repository is https://github.com/rodrigobuilds3-creator/pipa-entre-vecinos-week11. Native Sites hosting metadata and private academic audit records are excluded from the public source export. The development history preserves packet-before-code and the observed bug fixes.
 
 ## Privacy
 

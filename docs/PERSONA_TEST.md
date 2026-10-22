@@ -21,3 +21,26 @@
 ## Cambio implementado por el constructor
 
 Se añadió una alternativa explícita «No tengo medición: registrar recepción». Guarda `liters: null`, conserva la recepción como declaración sin certificar volumen y exige revisión humana antes de cerrar. Se aclaró que cada monto es una nueva aportación y que cerrar no significa haber pagado todo. El cambio se verifica en QA mecánico; no se presenta como una segunda reacción de la persona sintética.
+
+## Retest del rediseño — 2026-10-21
+
+**Misma persona:** Gloria, ficticia, 57 años, coordinadora sin remuneración, usa WhatsApp y libreta, lee despacio y desconfía de aplicaciones financieras. Este es un segundo recorrido sintético visual, no una entrevista ni una prueba interactiva. Se inspeccionaron las siguientes capturas reales del rediseño en este orden; no se pulsaron botones ni se verificaron sus efectos.
+
+### Capturas inspeccionadas y decisiones hipotéticas
+
+1. `evidence/redesign/01-home.jpg` — «Tocaría “Organizar mi pedido”. Si ya está el pedido, abajo veo “Revisar y confirmar”. “Sin pagos reales” me ayuda a entender que esto es una demostración». El porcentaje conserva su rótulo de simulación; no se supone una lectura real.
+2. `evidence/redesign/02-order.jpg` — «Ahora veo los 8,000 litros junto al precio menor. Si necesitamos 10,000, dejaría la primera opción; revisaría los $450 y tocaría “Confirmar pedido y reparto”». La cantidad y el costo por 1,000 L tienen más presencia, aunque aún tendría que comparar antes de decidir.
+3. `evidence/redesign/03-contributions.jpg` — «B ya tiene $200. Si me acaba de mandar $250, pondría 250: dice “Monto de esta nueva aportación” y que se suma a lo anterior. Después tocaría “Guardar aportación”». La instrucción resuelve mi duda sobre monto nuevo frente a acumulado; no demuestra por sí sola que la suma funcione.
+4. `evidence/redesign/04-delivery.jpg` — «Lo primero que veo en el formulario es “¿No conoces los litros?”. Sí, ese es mi caso: tocaría “Registrar recepción sin medición”. Ya no tendría que inventar el consumo ni afirmar que sé calibrar». La alternativa está antes de los campos técnicos y permite identificar una salida clara. Esta captura muestra una entrega con estimación, no el resultado posterior de elegir la alternativa sin medición.
+5. `evidence/redesign/05-history.jpg` — «Leo “Entrega cerrada manualmente” y que las aportaciones siguen abiertas. Entiendo que puedo seguir apuntando dinero. Tocaría “Preparar resumen”». El historial diferencia explícitamente cierre de entrega y continuidad del registro de pagos.
+6. `evidence/redesign/06-summary.jpg` — «Ahora dice “Saldo por aportar”: faltan $1,350. También dice que cerrar la entrega no significa que todo esté pagado. Revisaría eso y tocaría “Copiar resumen” para pegarlo en el grupo de WhatsApp». El texto compartible conserva esa distinción fuera de la aplicación.
+
+### Antes → corrección visible → resultado del recorrido
+
+| Antes | Corrección visible | Después, según Gloria sintética |
+| --- | --- | --- |
+| No saber calibración o consumo bloqueaba la decisión de registrar recepción. | “¿No conoces los litros?” y “Registrar recepción sin medición”, antes de los campos. | Identificaría y elegiría la ruta sin medición; el mayor obstáculo de comprensión queda atendido visualmente. No se verificó su ejecución. |
+| “Monto recibido” podía interpretarse como total acumulado. | “Monto de esta nueva aportación” y “Escribe solo lo recibido ahora; se sumará a lo anterior”. | Elegiría $250 nuevos, no $450 acumulados, en el ejemplo de B. |
+| “Cerrado” y “Saldo agregado” podían parecer cuenta liquidada. | “Entrega cerrada”, “Saldo por aportar” y aclaración explícita en historial y resumen. | Distinguiría entrega terminada de aportaciones pendientes, incluso al compartir. |
+
+**Cuestiones restantes:** la ruta sin medición está claramente ofrecida, pero falta su estado posterior en estas seis capturas para evaluar si Gloria entendería “volumen desconocido”. En el historial las dos aportaciones de B no muestran importes: «Si quiero comprobar cuánto apunté en cada una, tendría que volver a Aportaciones». No apareció un nuevo bloqueo grave en este recorrido. Las conclusiones se limitan a comprensión hipotética de capturas; no constituyen validación con residentes reales ni certifican funcionamiento.

@@ -10,9 +10,9 @@ export function number(value, min, max, label) {
   insist(value !== '' && value !== null && typeof value !== 'boolean', `${label}: falta un valor.`);
   const n = Number(value); insist(Number.isFinite(n) && n >= min && n <= max, `${label}: usa un valor entre ${min} y ${max}.`); return n;
 }
-export function toCents(value) {
+export function toCents(value, allowZero=false) {
   insist(/^\d{1,7}(\.\d{1,2})?$/.test(String(value)), 'Monto: usa pesos positivos con máximo dos decimales.');
-  const n = Math.round(Number(value) * 100); insist(n > 0 && n <= 100000000, 'Monto fuera de rango.'); return n;
+  const n = Math.round(Number(value) * 100); insist((allowZero?n>=0:n>0) && n <= 100000000, 'Monto fuera de rango.'); return n;
 }
 export function equalShares(total) {
   insist(Number.isInteger(total) && total > 0, 'Total inválido.');
@@ -50,7 +50,7 @@ export function transition(state, action, data={}, at=new Date().toISOString()) 
       insist(state.stage==='draft','El pedido ya fue confirmado.'); validateShares(data.shares,quoteFor(state).cents);
       next.shares=structuredClone(data.shares); next.stage='confirmed'; detail='Reparto aprobado y pedido confirmado manualmente.'; break;
     case 'payment': {
-      insist(['confirmed','review'].includes(state.stage),'Confirma el pedido antes de registrar aportaciones.');
+      insist(['confirmed','review','closed'].includes(state.stage),'Confirma el pedido antes de registrar aportaciones.');
       insist(UNITS.includes(data.unit),'Departamento no válido.'); insist(['cash','transfer'].includes(data.method),'Método no válido.');
       insist(Number.isInteger(data.cents)&&data.cents>0,'Monto no válido.');
       insist(paid(state,data.unit)+data.cents<=state.shares[data.unit],'El monto supera la aportación acordada.');
@@ -58,15 +58,17 @@ export function transition(state, action, data={}, at=new Date().toISOString()) 
       detail=`Aportación registrada para departamento ${data.unit}.`; break;
     }
     case 'voidPayment': {
-      insist(['confirmed','review'].includes(state.stage),'El pedido debe estar abierto para corregir.');
+      insist(['confirmed','review','closed'].includes(state.stage),'Confirma el pedido antes de corregir.');
       const p=next.payments.find(p=>p.id===data.id); insist(p&&!p.voided,'Aportación no encontrada o ya corregida.');
       p.voided=true; detail=`Aportación ${p.id} anulada; el registro original se conserva.`; break;
     }
     case 'delivery':
       insist(['confirmed','review'].includes(state.stage),'Confirma el pedido antes de recibir.');
+      if(state.delivery) next.deliveryRevisions=[...(state.deliveryRevisions??[]),{...state.delivery,supersededAt:at}];
       next.delivery={...estimateDelivery(data),at,reviewed:false}; next.stage='review'; detail='Lecturas de entrega registradas; revisión pendiente.'; break;
     case 'unmeasuredDelivery':
       insist(['confirmed','review'].includes(state.stage),'Confirma el pedido antes de registrar recepción.');
+      if(state.delivery) next.deliveryRevisions=[...(state.deliveryRevisions??[]),{...state.delivery,supersededAt:at}];
       next.delivery={kind:'unmeasured',liters:null,at,reviewed:false}; next.stage='review'; detail='Recepción declarada sin medición. Volumen desconocido; revisión pendiente.'; break;
     case 'review':
       insist(state.stage==='review'&&state.delivery,'Registra primero las lecturas.');
@@ -74,7 +76,7 @@ export function transition(state, action, data={}, at=new Date().toISOString()) 
       next.delivery.reviewed=true; detail='Diferencia revisada por coordinación; no implica certificación de volumen.'; break;
     case 'close':
       insist(state.stage==='review'&&state.delivery?.reviewed,'Revisa la entrega antes de cerrar.');
-      next.stage='closed'; detail='Cuenta cerrada manualmente. Los saldos no condicionan el acceso al agua.'; break;
+      next.stage='closed'; detail='Entrega cerrada manualmente. Aportaciones y correcciones de pagos siguen abiertas; ningún saldo condiciona el agua.'; break;
     default: throw new Error('Acción desconocida.');
   }
   next.revision++; next.events.push({action,detail,at,id:next.nextId++}); validateState(next); return next;
@@ -88,13 +90,17 @@ export function validateState(s) {
   insist(UNITS.every(u=>paid(s,u)<=s.shares[u]),'Aportaciones superiores al reparto.');
   insist(s.events.every(e=>typeof e.detail==='string'&&e.detail.length<240&&typeof e.at==='string'),'Historial guardado no válido.');
   if (s.delivery) { if(s.delivery.kind==='unmeasured') insist(s.delivery.liters===null&&typeof s.delivery.reviewed==='boolean','Recepción sin medición no válida.'); else {const d=estimateDelivery(s.delivery); insist(d.liters===s.delivery.liters && typeof s.delivery.reviewed==='boolean','Entrega guardada no válida.');} }
+  if(s.deliveryRevisions!==undefined) {
+    insist(Array.isArray(s.deliveryRevisions)&&s.deliveryRevisions.length<=100,'Historial de lecturas fuera de rango.');
+    for(const d of s.deliveryRevisions){insist(typeof d.supersededAt==='string','Falta fecha de corrección.');if(d.kind==='unmeasured')insist(d.liters===null,'Volumen anterior no válido.');else insist(estimateDelivery(d).liters===d.liters,'Lecturas anteriores no válidas.');}
+  }
   if(['review','closed'].includes(s.stage)) insist(s.delivery,'Falta entrega registrada.');
   if(s.stage==='closed') insist(s.delivery.reviewed,'Cuenta cerrada sin revisión.');
   return s;
 }
 export function serializeSummary(state) {
   const q=quoteFor(state); const totalPaid=state.payments.filter(p=>!p.voided).reduce((sum,p)=>sum+p.cents,0);
-  return `PIPA ENTRE VECINOS · DATOS FICTICIOS\n${q.name}\nTotal acordado: ${money(q.cents)} MXN\nVolumen cotizado: ${q.liters.toLocaleString('es-MX')} L\nVolumen estimado: ${state.delivery?(state.delivery.liters===null?'No medido; recepción declarada':state.delivery.liters.toLocaleString('es-MX')+' L (no certificado)'):'pendiente'}\nAportaciones registradas, total: ${money(totalPaid)} MXN\nSaldo por aportar (total): ${money(q.cents-totalPaid)} MXN\nEstado: ${{draft:'Borrador',confirmed:'Confirmado',review:'En revisión',closed:'Cerrado'}[state.stage]}\nCerrar la entrega no significa que todo esté pagado. No se incluyen saldos individuales ni lecturas crudas.\nEste resumen se comparte solo por decisión de quien lo exporta.`;
+  return `PIPA ENTRE VECINOS · DATOS FICTICIOS\n${q.name}\nTotal acordado: ${money(q.cents)} MXN\nVolumen cotizado: ${q.liters.toLocaleString('es-MX')} L\nVolumen estimado: ${state.delivery?(state.delivery.liters===null?'No medido; recepción declarada':state.delivery.liters.toLocaleString('es-MX')+' L (no certificado)'):'pendiente'}\nAportaciones registradas, total: ${money(totalPaid)} MXN\nSaldo por aportar (total): ${money(q.cents-totalPaid)} MXN\nEstado: ${{draft:'Borrador',confirmed:'Confirmado',review:'En revisión',closed:'Entrega cerrada'}[state.stage]}\nCerrar la entrega no significa que todo esté pagado. No se incluyen saldos individuales ni lecturas crudas.\nEste resumen se comparte solo por decisión de quien lo exporta.`;
 }
 export function syntheticHistory() {
   return Array.from({length:28},(_,i)=>({day:i+1,liters:1200+9*i+((i*13)%17-8)*9}));
