@@ -20,7 +20,7 @@ No dependencies or build step. Sources in dist/; packet, benchmark links, implem
 
 ## Publication
 
-Owner-private Sites publication authorized by Rodrigo in chat. Source repo is the native Sites repository, not GitHub. `gh auth status` reports invalid GitHub authentication; no GitHub link is claimed. Hosting metadata is retained privately and excluded from this public source export.
+Owner-private Sites publication authorized by Rodrigo in chat. Source repo is the native Sites repository, not GitHub. An initial sandboxed auth check was misleading; network-enabled verification confirmed the existing GitHub login. Rodrigo authorized a public repository at https://github.com/rodrigobuilds3-creator/pipa-entre-vecinos-week11. Hosting metadata is retained privately and excluded from this public source export.
 
 ## Privacy
 
