@@ -124,3 +124,7 @@ Volume: `capacity * (afterPercent - beforePercent) / 100 + withdrawalsLiters`; w
 5. Observed bug fix and usability refinement, retest and deployment 2.
 
 Every session closes with DECISIONS.md, next step, commit and push where access is available. Preserve real history; do not backdate or create empty commits to meet counts.
+
+## Addendum after synthetic persona review
+
+A coordinator who does not know calibrated volume can register receipt without measurement. `liters: null` remains unknown, no numerical discrepancy is invented, and human review is still required. Replacing that receipt with a calibrated estimate clears review. This usability change follows the packet's calibration and inclusion constraints.

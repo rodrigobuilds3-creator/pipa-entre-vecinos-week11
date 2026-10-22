@@ -65,6 +65,9 @@ export function transition(state, action, data={}, at=new Date().toISOString()) 
     case 'delivery':
       insist(['confirmed','review'].includes(state.stage),'Confirma el pedido antes de recibir.');
       next.delivery={...estimateDelivery(data),at,reviewed:false}; next.stage='review'; detail='Lecturas de entrega registradas; revisión pendiente.'; break;
+    case 'unmeasuredDelivery':
+      insist(['confirmed','review'].includes(state.stage),'Confirma el pedido antes de registrar recepción.');
+      next.delivery={kind:'unmeasured',liters:null,at,reviewed:false}; next.stage='review'; detail='Recepción declarada sin medición. Volumen desconocido; revisión pendiente.'; break;
     case 'review':
       insist(state.stage==='review'&&state.delivery,'Registra primero las lecturas.');
       insist(data.accepted===true,'Debes revisar la diferencia antes de continuar.');
@@ -84,14 +87,14 @@ export function validateState(s) {
   insist(s.payments.every(p=>Number.isInteger(p.id)&&UNITS.includes(p.unit)&&Number.isInteger(p.cents)&&p.cents>0&&['cash','transfer'].includes(p.method)&&typeof p.voided==='boolean'&&typeof p.at==='string'),'Aportaciones guardadas no válidas.');
   insist(UNITS.every(u=>paid(s,u)<=s.shares[u]),'Aportaciones superiores al reparto.');
   insist(s.events.every(e=>typeof e.detail==='string'&&e.detail.length<240&&typeof e.at==='string'),'Historial guardado no válido.');
-  if (s.delivery) { const d=estimateDelivery(s.delivery); insist(d.liters===s.delivery.liters && typeof s.delivery.reviewed==='boolean','Entrega guardada no válida.'); }
+  if (s.delivery) { if(s.delivery.kind==='unmeasured') insist(s.delivery.liters===null&&typeof s.delivery.reviewed==='boolean','Recepción sin medición no válida.'); else {const d=estimateDelivery(s.delivery); insist(d.liters===s.delivery.liters && typeof s.delivery.reviewed==='boolean','Entrega guardada no válida.');} }
   if(['review','closed'].includes(s.stage)) insist(s.delivery,'Falta entrega registrada.');
   if(s.stage==='closed') insist(s.delivery.reviewed,'Cuenta cerrada sin revisión.');
   return s;
 }
 export function serializeSummary(state) {
   const q=quoteFor(state); const totalPaid=state.payments.filter(p=>!p.voided).reduce((sum,p)=>sum+p.cents,0);
-  return `PIPA ENTRE VECINOS · DATOS FICTICIOS\n${q.name}\nTotal acordado: ${money(q.cents)} MXN\nVolumen cotizado: ${q.liters.toLocaleString('es-MX')} L\nVolumen estimado: ${state.delivery?state.delivery.liters.toLocaleString('es-MX')+' L (no certificado)':'pendiente'}\nAportaciones registradas, total: ${money(totalPaid)} MXN\nSaldo agregado: ${money(q.cents-totalPaid)} MXN\nEstado: ${{draft:'Borrador',confirmed:'Confirmado',review:'En revisión',closed:'Cerrado'}[state.stage]}\nEl reparto fue acordado por coordinación. No se incluyen saldos individuales ni lecturas crudas.\nEste resumen se comparte solo por decisión de quien lo exporta.`;
+  return `PIPA ENTRE VECINOS · DATOS FICTICIOS\n${q.name}\nTotal acordado: ${money(q.cents)} MXN\nVolumen cotizado: ${q.liters.toLocaleString('es-MX')} L\nVolumen estimado: ${state.delivery?(state.delivery.liters===null?'No medido; recepción declarada':state.delivery.liters.toLocaleString('es-MX')+' L (no certificado)'):'pendiente'}\nAportaciones registradas, total: ${money(totalPaid)} MXN\nSaldo por aportar (total): ${money(q.cents-totalPaid)} MXN\nEstado: ${{draft:'Borrador',confirmed:'Confirmado',review:'En revisión',closed:'Cerrado'}[state.stage]}\nCerrar la entrega no significa que todo esté pagado. No se incluyen saldos individuales ni lecturas crudas.\nEste resumen se comparte solo por decisión de quien lo exporta.`;
 }
 export function syntheticHistory() {
   return Array.from({length:28},(_,i)=>({day:i+1,liters:1200+9*i+((i*13)%17-8)*9}));

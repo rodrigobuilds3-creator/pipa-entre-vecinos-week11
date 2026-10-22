@@ -24,3 +24,11 @@ Observed: after saving a transfer for apartment B, rerender reset the form to ap
 ## Boundaries
 
 This is mechanical QA by the builder, not a separate fresh-chat persona test, physical sensor test or real resident study. No synthetic savings, real deliveries or real interviews are claimed.
+
+## Fix regression / actual browser result
+
+Reloaded app after fix. Selected B and transfer, saved MXN 200. Both selectors remained B / Transferencia and keyboard focus remained in the amount input. At 390px viewport, overview document width and scroll width both equal 390px (no document overflow). Mobile navigation scrolls horizontally. Found and corrected the collapsed brand word boundary at mobile breakpoint.
+
+## Synthetic persona improvement / regression
+
+A separate fresh-context synthetic persona reviewed five screenshots and flagged calibration as a stopping point. Added receipt-without-measurement path. Actual browser at 390px: user can confirm receipt without checking calibration, sees «No medido», no numerical discrepancy, and close remains disabled until review. Three additional tests pass (17 total), including unknown-volume export and review invalidation after replacing unknown volume with an estimate.
